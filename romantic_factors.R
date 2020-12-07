@@ -319,15 +319,32 @@ vec_concentration <- function( mtx ){
 
 mean_steps_to_delta<-function( nMonte ){
   all_conc<-matrix(0,ncol=10,nrow=nMonte)
+  all_qs <- matrix(0,ncol=10,nrow=nMonte)
+  all_as <- matrix(0,ncol=10,nrow=nMonte)
   for (k in 1:nMonte){
     qs <-sample(seq(1,36),size=10,replace=F)
     cond = T;
     as <-sample(seq(1,5),size=10,replace=T)
     aconc <- rep(0,10)
     for (j in 1:10 ){
-      cond <- cond & (br[,qs[j]]==as[j])
+      
+      nloop<-1
+      while(T) {
+        new_a = sample(seq(1,5))
+        cond_test <- cond & (br[,qs[j]]==new_a)
+        X <-ecr_cond_probs( br[,1:36], cond_test)
+        if (!all(is.na(X))){
+          as[j] <- new_a
+          cond <- cond_test
+          break
+        }
+        nloop <- nloop + 1
+        if (nloop>20){
+          break
+        }
+      }
       X <-ecr_cond_probs( br[,1:36], cond)
-      print(X)
+      
       nX <- ncol(X)
       tot <- 0
       ct <- 0
@@ -346,10 +363,12 @@ mean_steps_to_delta<-function( nMonte ){
       aconc[j]<-avg_conc
       print(length(aconc))
       all_conc[k,]<-aconc
-      
+      all_qs[k,]<-qs
+      all_as[k,]<-as
       print(paste('step',ct,' conc=',avg_conc))
       }
     }
   }
-  all_conc
+  list(c=all_conc,q=all_qs,a=all_as)
 }
+
