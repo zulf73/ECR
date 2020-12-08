@@ -403,4 +403,64 @@ list_triple_dists<-function(K){
   ans
 }
 
-triple_df <- list_triple_dists(50000)
+if (FALSE){
+triple_df <- list_triple_dists(2000)
+}
+
+enumerate_pairs<-function( v ){
+  n<-length(v)
+  pairs <- list()
+  for (k in 2:n){
+    for (j in 1:k){
+      pairs <- append(pairs, c(v[j],v[k]))
+    }
+  }
+  pairs
+}
+
+get_trp_dist<-function( ia, ib, ic ){
+  t<-triple_df
+  idx <- which( (t$a==ia) & (t$b==ib) & (t$c==ic))
+  if (length(idx)==0){
+    return(NULL)
+  }
+  print(idx)
+  Jt[[idx]] 
+}
+
+feasible_path<- function( path, new_a ){
+  if (length(path)>36){
+    return(F)
+  }
+  valid <- T
+  pp <- enumerate_pairs( path )
+  for (pair in pp){
+    
+    fdist<-get_trp_dist(pair[1], pair[2], length(path)+1)
+    # value at path[pair[1]], path[pair[2]], length(path)+1
+    if (length(fdist)>0){
+      ia <- path[pair[1]]
+      ib <- path[pair[2]]
+      ic <- length(path)+1
+      val <- fdist[ia, (ic-1)*5+ib ]
+      if (val < thresh){
+        valid<-F
+        break
+      }
+    }
+  }
+  valid
+}
+
+sim_erc<-function(){
+  start <- sample(seq(1,5),3, replace=T)
+  path <- start
+  for (k in 1:36){
+    new_a <- sample(seq(1,5),1)
+    if (feasible_path( path, new_a)){
+      path <- append(path,new_a)
+      next
+    }
+  }
+  path
+}
