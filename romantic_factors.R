@@ -259,7 +259,7 @@ library(ggplot2)
 gghistogram<-function( df, var) {
 # Create a Histogram
 ggplot(data = df, aes(x = var)) + 
-  geom_histogram(binwidth = 10, color = "midnightblue") + 
+  geom_histogram(binwidth = 10, .color = "midnightblue") + 
   theme(legend.position = "top")
 }
 
@@ -372,3 +372,35 @@ mean_steps_to_delta<-function( nMonte ){
   list(c=all_conc,q=all_qs,a=all_as)
 }
 
+triple_dist<-function(a,b,c){
+  xtbl<-matrix(0, nrow=5,ncol=25)
+  dataset<-br[,1:36]
+  for (r in 1:nrow(dataset)){
+    ia <- dataset[r,a]
+    ib <- dataset[r,b]
+    ic <- max(dataset[r,c],1)
+    #print(paste(ia,ib,ic))
+    xtbl[ia,(ic-1)*5 + ib]<-xtbl[ia,(ic-1)*5+ib]+1.
+  }
+  xtbl<-xtbl*100/sum(xtbl)
+  sparsity <- sum(xtbl<0.3)/125.
+  list(X=xtbl,sp=sparsity)
+}
+
+Jt <- list()
+
+list_triple_dists<-function(K){
+  as<-sample(seq(1,36),K,replace=T)
+  bs<-sample(seq(1,36),K,replace=T)
+  cs<-sample(seq(1,36),K,replace=T)
+  sps<-rep(0,K)
+  for (k in 1:K){
+    TD<-triple_dist(as[k],bs[k],cs[k])
+    sps[k]<-TD$sp
+    Jt[[k]]<-TD$X
+  }
+  ans<-data.frame(a=as,b=bs,c=cs,sp=sps)
+  ans
+}
+
+triple_df <- list_triple_dists(50000)
