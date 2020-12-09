@@ -451,12 +451,19 @@ feasible_path<- function( path, new_a ){
   }
   valid
 }
+ecrp<-ecr_probabilities(br[,1:36])
 
 sim_erc<-function(){
-  start <- sample(seq(1,5),3, replace=T)
+  start<-rep(1,3)
+  start[1] <- sample(seq(1,5),1, replace=T, 
+                     prob=ecrp[,1])
+  start[2] <- sample(seq(1,5),1, replace=T, 
+                     prob=ecrp[,2])
+  start[3] <- sample(seq(1,5),1, replace=T, 
+                     prob=ecrp[,3])
   path <- start
-  for (k in 1:36){
-    new_a <- sample(seq(1,5),1)
+  for (k in 4:36){
+    new_a <- sample(seq(1,5),1,prob=ecrp[,k])
     if (feasible_path( path, new_a)){
       path <- append(path,new_a)
       next
@@ -464,3 +471,57 @@ sim_erc<-function(){
   }
   path
 }
+
+#############################
+# classes determined from examination
+# of higher than 0.8 correlation
+# of Markov-Density adjusted marginal
+# probability correlations
+
+ecr_classes <-c( 1,
+                 2,
+                 2,
+                 2,
+                 1,
+                 2,
+                 1,
+                 2,
+                 1,
+                 2,
+                 1,
+                 1,
+                 1,
+                 2,
+                 2,
+                 1,
+                 1,
+                 2,
+                 2,
+                 1,
+                 1,
+                 1,
+                 1,
+                 2,
+                 1,
+                 1,
+                 2,
+                 1,
+                 1,
+                 2,
+                 2,
+                 2,
+                 2,
+                 2,
+                 2,
+                 1
+)
+
+########################################
+# The two factors let us leave at 
+# Zulf's Facor 1
+# Zulf's factor 2
+# Let us consider candidates for description
+#
+# 1. Anxiety of Loneliness
+# 2. Demands of Togetherness
+# these are not good names yet but provisional
